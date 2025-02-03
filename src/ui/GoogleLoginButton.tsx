@@ -1,11 +1,14 @@
-// components/GoogleLoginButton.js
 "use client"; // Mark as a Client Component
 
-import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
+import {
+  GoogleOAuthProvider,
+  GoogleLogin,
+  GoogleCredentialResponse,
+} from "@react-oauth/google";
 
 type GoogleLoginButtonProps = {
-  onSuccess: (credentialResponse: any) => void; // Callback for successful login
-  onError: () => void; // Callback for login error
+  onSuccess: (credentialResponse: GoogleCredentialResponse) => void;
+  onError: () => void;
 };
 
 export function GoogleLoginButton({

@@ -1,5 +1,7 @@
 import { Polly } from "@aws-sdk/client-polly";
-require("dotenv").config();
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const awsAccessKey = process.env.AWS_ACCESS_KEY_ID;
 const awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;

@@ -1,15 +1,27 @@
-import { createContext, useContext } from "react";
+import { AssistantMessage } from "@/data/types";
+import { createContext, ReactNode, useContext } from "react";
 
-const ResponseContext = createContext(null);
+interface ResponseContextType {
+  fetchResponse: (message: string) => Promise<AssistantMessage | null>;
+}
+
+interface ResponseContextProps {
+  children: ReactNode;
+}
+
+const ResponseContext = createContext<ResponseContextType | undefined>(
+  undefined
+);
 
 export const useResponseContext = () => useContext(ResponseContext);
 
-export const ResponseContextProvider = ({ children }) => {
+export const ResponseContextProvider = ({ children }: ResponseContextProps) => {
   /**
+   * Returns the response as { role: "assistant", content: {JSON object with model response according to the context} }
+   *
    * @param message
    * @returns
    *
-   * Returns the response as { role: "assistant", content: {JSON object with model response according to the context} }
    */
   const fetchResponse = async (message: string) => {
     try {

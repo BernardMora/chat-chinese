@@ -14,8 +14,8 @@ export function HomePageContent() {
     setConversations,
     getConversations,
     getConversationWithMessages,
-  } = useConversationContext();
-  const { fetchVocabulary } = useVocabularyContext();
+  } = useConversationContext()!;
+  const { fetchVocabulary } = useVocabularyContext()!;
 
   // We always call the useEffect here regardless of user state
   useEffect(() => {
@@ -36,10 +36,14 @@ export function HomePageContent() {
         }
       });
     }
-  }, [user]); // Only re-run effect when user changes
+  }, [uid]);
 
   if (!user) {
-    return <div>Loading...</div>; // You could show a loading state instead of null
+    return (
+      <div className="flex justify-center items-center h-screen bg-white">
+        <div className="border-4 border-t-4 border-gray-300 border-t-blue-500 w-16 h-16 rounded-full animate-spin"></div>
+      </div>
+    );
   }
 
   return (

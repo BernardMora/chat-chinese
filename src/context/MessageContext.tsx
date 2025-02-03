@@ -1,19 +1,34 @@
 "use client";
 
-import { Message } from "@/data/Message";
-import { createContext, useContext, useState } from "react";
+import { createContext, ReactNode, useContext } from "react";
 
-const MessageContext = createContext(null);
+interface MessageContextType {
+  getMessages: (uid: string) => Promise<object | null>;
+  updateMessage: (
+    uid: string,
+    cid: string,
+    mid: string,
+    attributes: object
+  ) => Promise<object | null>;
+}
+
+interface MessageContextProviderProps {
+  children: ReactNode;
+}
+
+const MessageContext = createContext<MessageContextType | undefined>(undefined);
 
 export const useMessageContext = () => useContext(MessageContext);
 
-export const MessageContextProvider = ({ children }) => {
+export const MessageContextProvider = ({
+  children,
+}: MessageContextProviderProps) => {
   const getMessages = async (uid: string) => {
     try {
       const response = await fetch(`/api/firestore/conversations?uid=${uid}`, {
         method: "GET",
       });
-      let data = await response.json();
+      const data = await response.json();
       if (data.success) {
         return data.conversations;
       } else {
@@ -30,7 +45,7 @@ export const MessageContextProvider = ({ children }) => {
     uid: string,
     cid: string,
     mid: string,
-    attributes: Object
+    attributes: object
   ) => {
     try {
       const response = await fetch(`/api/firestore/conversations/messages`, {
@@ -45,7 +60,7 @@ export const MessageContextProvider = ({ children }) => {
           attributes: attributes,
         }),
       });
-      let data = await response.json();
+      const data = await response.json();
       if (data.success) {
         return data.conversation;
       } else {

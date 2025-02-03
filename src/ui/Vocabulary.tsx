@@ -3,14 +3,17 @@ import { useVocabularyContext } from "@/context/VocabularyContext";
 import { useUserContext } from "@/context/UserContext";
 
 export function Vocabulary({ onClose }: { onClose: () => void }) {
-  const { vocabulary } = useVocabularyContext();
-  const { preferences } = useUserContext();
+  const { vocabulary } = useVocabularyContext() ?? {};
+  const { preferences } = useUserContext() ?? {};
 
   const playAudio = async (base64audio: string) => {
     try {
       const audioUrl = `data:audio/mp3;base64,${base64audio}`;
       const audio = new Audio(audioUrl);
-      audio.playbackRate = preferences.playbackSpeed;
+
+      if (preferences) audio.playbackRate = preferences.playbackSpeed;
+      else audio.playbackRate = 1;
+
       audio.play();
 
       audio.addEventListener("error", (e) => {
@@ -36,22 +39,26 @@ export function Vocabulary({ onClose }: { onClose: () => void }) {
           Vocabulary
         </h2>
         <ul className="space-y-2 text-lg text-black">
-          {Array.from(vocabulary.entries()).map(([hanzi, word]) => (
-            <li key={hanzi} className="flex items-center">
-              <button
-                onClick={() => {
-                  playAudio(word.audio);
-                }}
-                className="text-gray-600 hover:text-gray-800"
-              >
-                <FaVolumeUp />
-              </button>
-              <span className="ml-4">
-                <span className="font-bold">{hanzi} </span>({word.pinyin}) →{" "}
-                {word.english}
-              </span>
-            </li>
-          ))}
+          {vocabulary ? (
+            Array.from(vocabulary.entries()).map(([hanzi, word]) => (
+              <li key={hanzi} className="flex items-center">
+                <button
+                  onClick={() => {
+                    playAudio(word.audio);
+                  }}
+                  className="text-gray-600 hover:text-gray-800"
+                >
+                  <FaVolumeUp />
+                </button>
+                <span className="ml-4">
+                  <span className="font-bold">{hanzi} </span>({word.pinyin}) →{" "}
+                  {word.english}
+                </span>
+              </li>
+            ))
+          ) : (
+            <span>There was a problem fetching the vocabulary</span>
+          )}
         </ul>
       </div>
     </div>

@@ -1,22 +1,65 @@
 "use client";
 
-import { Message } from "@/data/Message";
-import { createContext, useContext, useState } from "react";
+import { Conversation, Message } from "@/data/types";
+import {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  createContext,
+  useContext,
+  useState,
+} from "react";
 
-const ConversationContext = createContext(null);
+interface ConversationContextType {
+  conversations: Conversation[];
+  setConversations: Dispatch<SetStateAction<Conversation[]>>;
+  selectedConversation: Conversation | null;
+  setSelectedConversation: Dispatch<SetStateAction<Conversation | null>>;
+  getConversations: (uid: string) => Promise<Conversation[] | null>;
+  getConversationWithMessages: (
+    uid: string,
+    cid: string
+  ) => Promise<Conversation | null>;
+  createConversation: (
+    uid: string,
+    message: Message
+  ) => Promise<Conversation | null>;
+  createMessageInConversation: (
+    uid: string,
+    cid: string,
+    message: Message
+  ) => Promise<Conversation | null>;
+  updateConversation: (
+    uid: string,
+    cid: string,
+    attributes: object
+  ) => Promise<object | null>;
+  deleteConversation: (uid: string, cid: string) => Promise<object | null>;
+}
+
+interface ConversationContextProviderProps {
+  children: ReactNode;
+}
+
+const ConversationContext = createContext<ConversationContextType | undefined>(
+  undefined
+);
 
 export const useConversationContext = () => useContext(ConversationContext);
 
-export const ConversationContextProvider = ({ children }) => {
-  const [conversations, setConversations] = useState([]);
-  const [selectedConversation, setSelectedConversation] = useState(null);
+export const ConversationContextProvider = ({
+  children,
+}: ConversationContextProviderProps) => {
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedConversation, setSelectedConversation] =
+    useState<Conversation | null>(null);
 
   const getConversations = async (uid: string) => {
     try {
       const response = await fetch(`/api/firestore/conversations?uid=${uid}`, {
         method: "GET",
       });
-      let data = await response.json();
+      const data = await response.json();
       if (data.success) {
         return data.conversations;
       } else {
@@ -37,7 +80,7 @@ export const ConversationContextProvider = ({ children }) => {
           method: "GET",
         }
       );
-      let data = await response.json();
+      const data = await response.json();
       if (data.success) {
         return data.conversation;
       } else {
@@ -58,7 +101,7 @@ export const ConversationContextProvider = ({ children }) => {
         },
         body: JSON.stringify({ uid: uid, message: message }),
       });
-      let data = await response.json();
+      const data = await response.json();
       if (data.success) {
         return data.conversation;
       } else {
@@ -84,7 +127,7 @@ export const ConversationContextProvider = ({ children }) => {
         },
         body: JSON.stringify({ uid: uid, cid: cid, message: message }),
       });
-      let data = await response.json();
+      const data = await response.json();
       if (data.success) {
         return data.conversation;
       } else {
@@ -100,7 +143,7 @@ export const ConversationContextProvider = ({ children }) => {
   const updateConversation = async (
     uid: string,
     cid: string,
-    attributes: Object
+    attributes: object
   ) => {
     try {
       const response = await fetch(`/api/firestore/conversations`, {
@@ -110,7 +153,7 @@ export const ConversationContextProvider = ({ children }) => {
         },
         body: JSON.stringify({ uid: uid, cid: cid, attributes: attributes }),
       });
-      let data = await response.json();
+      const data = await response.json();
       if (data.success) {
         return data.conversation;
       } else {
@@ -132,7 +175,7 @@ export const ConversationContextProvider = ({ children }) => {
         },
         body: JSON.stringify({ uid: uid, cid: cid }),
       });
-      let data = await response.json();
+      const data = await response.json();
       if (data.success) {
         return data.conversation;
       } else {

@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Edit, Trash2 } from "lucide-react";
+import { Conversation } from "@/data/types";
 
 export function ConversationList() {
   const {
@@ -14,29 +15,32 @@ export function ConversationList() {
     getConversationWithMessages,
     updateConversation,
     deleteConversation,
-  } = useConversationContext();
+  } = useConversationContext()!;
   const { uid } = useAuth();
 
-  const [openMenuId, setOpenMenuId] = useState(null); // Track which conversation's menu is open
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null); // Track which conversation's menu is open
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 }); // Track the position of the "three dots" button
-  const [editingConvId, setEditingConvId] = useState(null); // Track which conversation is being edited
+  const [editingConvId, setEditingConvId] = useState<string | null>(null); // Track which conversation is being edited
   const [editedTitle, setEditedTitle] = useState(""); // Track the edited title
-  const [deleteConvId, setDeleteConvId] = useState(null); // Track which conversation is being deleted
-  const menuRef = useRef(null); // Ref for the popup menu
-  const inputRef = useRef(null); // Ref for the input field
-  const deleteRef = useRef(null);
+  const [deleteConvId, setDeleteConvId] = useState<string | null>(null); // Track which conversation is being deleted
+  const menuRef = useRef<HTMLDivElement | null>(null); // Ref for the popup menu
+  const inputRef = useRef<HTMLInputElement | null>(null); // Ref for the input field
+  const deleteRef = useRef<HTMLDivElement | null>(null);
 
-  const handleSelectConversation = (conv) => {
-    getConversationWithMessages(uid, conv.id).then(
+  const handleSelectConversation = (conv: Conversation) => {
+    getConversationWithMessages(uid!, conv.id).then(
       (conversationWithMessages) => {
         setSelectedConversation(conversationWithMessages);
       }
     );
   };
 
-  const handleMenuClick = (e, convId) => {
+  const handleMenuClick = (
+    e: React.MouseEvent<HTMLButtonElement>,
+    convId: string
+  ) => {
     e.stopPropagation(); // Prevent event bubbling to the parent button
-
+    if (!e.currentTarget) return;
     // Get the position of the "three dots" button
     const buttonRect = e.currentTarget.getBoundingClientRect();
     setMenuPosition({
@@ -47,7 +51,8 @@ export function ConversationList() {
     setOpenMenuId(openMenuId === convId ? null : convId); // Toggle menu
   };
 
-  const handleRename = (convId) => {
+  const handleRename = (convId: string) => {
+    if (!conversations) return;
     const conversation = conversations.find((conv) => conv.id === convId);
     if (conversation) {
       setEditedTitle(conversation.title); // Set the initial title for editing
@@ -56,7 +61,7 @@ export function ConversationList() {
     }
   };
 
-  const handleDeleteClick = (convId) => {
+  const handleDeleteClick = (convId: string) => {
     setDeleteConvId(convId); // Set the conversation to delete
     setOpenMenuId(null); // Close the menu
   };
@@ -64,10 +69,10 @@ export function ConversationList() {
   const handleDeleteConfirm = async () => {
     if (deleteConvId) {
       // Call your backend API to delete the conversation
-      await deleteConversation(uid, deleteConvId);
+      await deleteConversation(uid!, deleteConvId);
 
       // Select the first conversation in the list (excluding the deleted one)
-      const remainingConversations = conversations.filter(
+      const remainingConversations = conversations!.filter(
         (conv) => conv.id !== deleteConvId
       );
       if (remainingConversations.length > 0) {
@@ -85,7 +90,7 @@ export function ConversationList() {
     setDeleteConvId(null); // Close the delete confirmation popup
   };
 
-  const handleSaveTitle = async (convId) => {
+  const handleSaveTitle = async (convId: string) => {
     const conversation = conversations.find((conv) => conv.id === convId);
     if (conversation) {
       // Update the title locally
@@ -93,17 +98,17 @@ export function ConversationList() {
       setEditingConvId(null); // Stop editing
 
       // Call your backend API to update the title
-      await updateConversation(uid, convId, { title: editedTitle });
+      await updateConversation(uid!, convId, { title: editedTitle });
     }
   };
 
   // Close the menu when clicking outside
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
+    const handleClickOutside = (e: Event) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setOpenMenuId(null);
       }
-      if (deleteRef.current && !deleteRef.current.contains(e.target)) {
+      if (deleteRef.current && !deleteRef.current.contains(e.target as Node)) {
         setDeleteConvId(null);
       }
     };

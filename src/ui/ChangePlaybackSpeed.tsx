@@ -6,9 +6,9 @@ export function ChangePlaybackSpeed({
 }: {
   handleShowPlaybackSpeed: () => void;
 }) {
-  const { uid, updateUser, preferences, setPreferences } = useUserContext();
+  const { uid, updateUser, preferences, setPreferences } = useUserContext()!;
   const [playbackSpeed, setPlaybackSpeed] = useState(
-    preferences.playbackSpeed * 100
+    preferences!.playbackSpeed * 100
   );
 
   const handleSpeedChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -16,7 +16,7 @@ export function ChangePlaybackSpeed({
   };
 
   const handleConfirmPlaybackSpeed = async (speed: number) => {
-    await updateUser(uid, { preferences: { playbackSpeed: speed / 100 } });
+    await updateUser!(uid!, { preferences: { playbackSpeed: speed / 100 } });
     setPreferences({ ...preferences, playbackSpeed: speed / 100 });
     handleShowPlaybackSpeed();
   };

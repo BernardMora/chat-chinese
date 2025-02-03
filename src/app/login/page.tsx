@@ -11,9 +11,9 @@ import {
   GoogleAuthProvider,
   signInWithCredential,
 } from "firebase/auth";
-
 import { onAuthStateChanged } from "firebase/auth";
 import { GoogleLoginButton } from "@/ui/GoogleLoginButton";
+import { GoogleCredentialResponse } from "@react-oauth/google";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -37,19 +37,21 @@ export default function LoginPage() {
           method: "POST",
         }
       );
-      let data = await response.json();
+      const data = await response.json();
       return data;
     } catch (error) {
       console.error("Error fetching data from backend:", error);
     }
   };
 
-  const handleGoogleLoginSuccess = async (response: any) => {
+  const handleGoogleLoginSuccess = async (
+    response: GoogleCredentialResponse
+  ) => {
     const credential = GoogleAuthProvider.credential(response.credential);
     const userCredential = await signInWithCredential(auth, credential);
     const user = userCredential.user;
 
-    let res = await createUser(user.email!, user.uid);
+    const res = await createUser(user.email!, user.uid);
     if (!res.success) {
       console.error(res.error);
     }
@@ -103,14 +105,18 @@ export default function LoginPage() {
           return;
         }
         // After email verification, create user record in Firestore
-        let res = await createUser(email, user.uid);
+        const res = await createUser(email, user.uid);
         if (!res.success) {
           console.error(res.error);
         }
         router.push(`/`); // Redirect after login
       }
     } catch (error) {
-      setErrorMessage(error.message);
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage("An unknown error occurred.");
+      }
     }
   };
 
@@ -135,15 +141,11 @@ export default function LoginPage() {
           <GoogleLoginButton
             onSuccess={handleGoogleLoginSuccess}
             onError={handleGoogleLoginError}
-            className="w-64"
           />
-          {/* <button className="w-64 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors text-lg">
-            Login with Apple (TODO)
-          </button> */}
         </div>
 
-        {/* Right side */}
-        <div className="lg:w-1/2 p-8 flex flex-col space-y-6">
+        {/* Right side (Login/Signup) */}
+        <div className="lg:w-1/2 p-8 flex flex-col justify-center h-[60vh] space-y-6">
           <h2 className="text-2xl font-bold">
             {isSignup ? "Sign Up" : "Log In"}
           </h2>

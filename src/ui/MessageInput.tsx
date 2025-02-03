@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Message } from "@/data/Message";
+import { AssistantMessage, Conversation, UserMessage } from "@/data/types";
 import { FaTachometerAlt } from "react-icons/fa";
 import { useConversationContext } from "@/context/ConversationContext";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,13 +15,13 @@ export function MessageInput({
 }) {
   const { uid } = useAuth();
   const {
-    selectedConversation,
     setSelectedConversation,
     setConversations,
     createConversation,
     createMessageInConversation,
-  } = useConversationContext();
-  const { fetchResponse } = useResponseContext();
+  } = useConversationContext()!;
+  const { selectedConversation } = useConversationContext() ?? {};
+  const { fetchResponse } = useResponseContext()!;
 
   const [stateMessage, setStateMessage] = useState("");
   const [showPlaybackSpeed, setShowPlaybackSpeed] = useState(false);
@@ -35,27 +35,31 @@ export function MessageInput({
   };
 
   const sendMessageToConversation = async (
-    conversation: any,
-    newMessage: Message
-  ): Promise<any> => {
+    conversation: Conversation,
+    newMessage: UserMessage | AssistantMessage
+  ): Promise<Conversation | null> => {
     // Create a new message in the conversation
-    let newConversation = await createMessageInConversation(
-      uid,
+    const newConversation = await createMessageInConversation(
+      uid!,
       conversation.id,
       newMessage
     );
+    if (!newConversation) return null;
+
     // Update the selectedConversation
     setSelectedConversation(newConversation);
     return newConversation;
   };
 
-  const createConversationWithMessage = async (newMessage: Message) => {
+  const createConversationWithMessage = async (newMessage: UserMessage) => {
     if (uid === null) {
       console.error("User not authenticated");
       return null;
     }
 
     const newConversation = await createConversation(uid, newMessage);
+    if (!newConversation) return null;
+
     setConversations((prev) => [...prev, newConversation]);
 
     if (newConversation) {
@@ -66,7 +70,9 @@ export function MessageInput({
     return null;
   };
 
-  const sendUserMessageToDB = async (message: string): Promise<any> => {
+  const sendUserMessageToDB = async (
+    message: string
+  ): Promise<Conversation | null> => {
     if (!message.trim()) return null;
 
     let conversation = selectedConversation;
@@ -78,7 +84,7 @@ export function MessageInput({
       });
       if (!conversation) return null; // If failed to create conversation, exit
     } else {
-      conversation = await sendMessageToConversation(conversation, {
+      conversation = await sendMessageToConversation(conversation!, {
         role: "user",
         content: message,
       });

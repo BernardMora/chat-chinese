@@ -6,7 +6,7 @@ import { useConversationContext } from "@/context/ConversationContext";
 import { ResponseContextProvider } from "@/context/ResponseContext";
 
 export function MainChat() {
-  const { selectedConversation } = useConversationContext();
+  const { selectedConversation } = useConversationContext() ?? {};
 
   const [loading, setLoading] = useState(false);
 
@@ -14,7 +14,7 @@ export function MainChat() {
     <div className="flex-1 flex flex-col justify-center items-center w-2/4 mx-auto">
       {selectedConversation !== null ? (
         <>
-          <Chat loading={loading} messages={selectedConversation.messages} />
+          <Chat loading={loading} />
 
           <ResponseContextProvider>
             <MessageInput setLoading={setLoading} />

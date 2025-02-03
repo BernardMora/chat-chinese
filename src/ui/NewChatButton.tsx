@@ -4,7 +4,7 @@ import { useConversationContext } from "@/context/ConversationContext";
 import { ChatBubbleLeftIcon } from "@heroicons/react/24/solid"; // Chat icon
 
 export default function NewChatButton() {
-  const { setSelectedConversation } = useConversationContext();
+  const { setSelectedConversation } = useConversationContext()!;
 
   return (
     <div>

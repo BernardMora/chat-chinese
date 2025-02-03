@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Message } from "@/data/Message";
+import { AssistantMessage, Word } from "@/data/types";
 import { ClipLoader } from "react-spinners";
 import { FaVolumeUp } from "react-icons/fa";
 import { useUserContext } from "@/context/UserContext";
@@ -7,16 +7,19 @@ import { useMessageContext } from "@/context/MessageContext";
 import { useConversationContext } from "@/context/ConversationContext";
 import { useVocabularyContext } from "@/context/VocabularyContext";
 
-export function BotMessage({ message }: { message: Message | null }) {
-  const { selectedConversation } = useConversationContext();
-  const { updateMessage } = useMessageContext();
-  const { uid, preferences } = useUserContext();
-  const { getWord, addWord, saveWordToVocabulary } = useVocabularyContext();
+export function BotMessage({ message }: { message: AssistantMessage | null }) {
+  const { selectedConversation } = useConversationContext()!;
+  const { updateMessage } = useMessageContext()!;
+  const { uid, preferences } = useUserContext() ?? {};
+  const { getWord, addWord, saveWordToVocabulary } = useVocabularyContext()!;
 
   const playAudio = async (base64audio: string) => {
     try {
       const audioUrl = `data:audio/mp3;base64,${base64audio}`;
       const audio = new Audio(audioUrl);
+      if (!preferences) {
+        return;
+      }
       audio.playbackRate = preferences.playbackSpeed;
       audio.play();
 
@@ -97,9 +100,9 @@ export function BotMessage({ message }: { message: Message | null }) {
                       message.content.hanzi
                     );
                     await updateMessage(
-                      uid,
-                      selectedConversation.id,
-                      message.id,
+                      uid!,
+                      selectedConversation!.id,
+                      message.id!,
                       message
                     );
                   }
@@ -119,7 +122,7 @@ export function BotMessage({ message }: { message: Message | null }) {
         <div>
           <h1 className="text-2xl pt-5">Direct Translation List:</h1>
           <ul className="list-disc pl-5 pt-4">
-            {message.content.list.map((word: any, index: number) => (
+            {message.content.list.map((word: Word, index: number) => (
               <li key={index} className="mb-2 flex flex-wrap items-center">
                 <span className="font-bold">{word.eng + " → "}</span>
                 {word.hanzi !== "" ? word.hanzi + " (" + word.pinyin + ")" : ""}
@@ -142,6 +145,7 @@ export function BotMessage({ message }: { message: Message | null }) {
                             audio: audio,
                           };
                           addWord(word.hanzi, newWord);
+                          if (!uid) return;
                           await saveWordToVocabulary(uid, newWord);
                           playAudio(audio);
                         } else {

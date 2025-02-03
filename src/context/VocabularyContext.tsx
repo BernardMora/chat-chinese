@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
 
 interface Word {
   hanzi: string;
@@ -17,11 +17,19 @@ interface VocabularyContextType {
   saveWordToVocabulary: (uid: string, word: Word) => Promise<void>;
 }
 
-const VocabularyContext = createContext<VocabularyContextType | null>(null);
+interface VocabularyContextProviderProps {
+  children: ReactNode;
+}
+
+const VocabularyContext = createContext<VocabularyContextType | undefined>(
+  undefined
+);
 
 export const useVocabularyContext = () => useContext(VocabularyContext);
 
-export const VocabularyContextProvider = ({ children }) => {
+export const VocabularyContextProvider = ({
+  children,
+}: VocabularyContextProviderProps) => {
   const [vocabulary, setVocabulary] = useState<Map<string, Word>>(new Map());
 
   // Fetch the vocabulary from Firestore
