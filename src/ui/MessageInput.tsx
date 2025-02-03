@@ -113,9 +113,9 @@ export function MessageInput({
   };
 
   return (
-    <div className="bg-white sticky bottom-0 items-center">
+    <div className="w-full bg-white sticky bottom-0 items-center">
       <div
-        className="bg-gray-300 p-4 rounded-lg w-full transition-all duration-200"
+        className="bg-gray-300 p-4 rounded-lg transition-all duration-200"
         style={{
           minHeight: "4rem", // Initial small height
           height: "auto", // Allow height to grow

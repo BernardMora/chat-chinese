@@ -11,7 +11,7 @@ export function MainChat() {
   const [loading, setLoading] = useState(false);
 
   return (
-    <div className="flex-1 flex flex-col justify-center items-center w-3/4 mx-auto">
+    <div className="flex-1 flex flex-col justify-center items-center w-2/4 mx-auto">
       {selectedConversation !== null ? (
         <>
           <Chat loading={loading} messages={selectedConversation.messages} />
