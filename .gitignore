@@ -34,9 +34,10 @@ yarn-error.log*
 .env*
 firebase.json
 firestore.rules
-/src/lib/firebase.js
-/src/serviceAccountKey.json
+/src/lib/serviceAccountKey.json
+/src/lib/firebaseConfig.json
 pollyUser_accessKeys.csv
+apphosting.yaml
 
 # vercel
 .vercel
