@@ -4,11 +4,24 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Now parse the JSON string into an object
-let firebaseServiceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-firebaseServiceAccount["private_key"] = firebaseServiceAccount[
-  "private_key"
-].replaceAll("{code}", "\n");
+// Get the Base64-encoded environment variable
+const firebaseServiceAccountBase64 =
+  process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
+
+// Decode the Base64 string
+const firebaseServiceAccountStr = Buffer.from(
+  firebaseServiceAccountBase64,
+  "base64"
+).toString("utf-8");
+
+// Parse the JSON string
+let firebaseServiceAccount;
+try {
+  firebaseServiceAccount = JSON.parse(firebaseServiceAccountStr);
+} catch (error) {
+  console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT:", error);
+  throw new Error("Invalid FIREBASE_SERVICE_ACCOUNT format");
+}
 
 // Initialize the Firebase Admin SDK
 if (!getApps().length) {
